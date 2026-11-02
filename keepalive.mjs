@@ -9,7 +9,7 @@
 
 import { chromium } from 'playwright';
 
-const URL = process.env.TARGET_URL ?? 'https://fayln-api.marky.blitz.cloud/';
+const URL = process.env.TARGET_URL ?? 'https://movie-box.joke.blitz.cloud/';
 const MAX_WAIT_MS = Number(process.env.MAX_WAIT_MS ?? 90000);
 const POLL_MS = Number(process.env.POLL_MS ?? 5000);
 const NAV_TIMEOUT_MS = Number(process.env.NAV_TIMEOUT_MS ?? 45000);
