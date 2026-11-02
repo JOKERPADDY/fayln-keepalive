@@ -33,5 +33,5 @@ jobs:
       - name: Wake the app
         env:
           TARGET_URL: 'https://movie-box.joke.blitz.cloud/'
-          MAX_WAIT_MS: '90000'
+          MAX_WAIT_MS: '240000'
         run: node keepalive.mjs
