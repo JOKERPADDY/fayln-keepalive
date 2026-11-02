@@ -17,7 +17,14 @@ const NAV_TIMEOUT_MS = Number(process.env.NAV_TIMEOUT_MS ?? 45000);
 const t0 = Date.now();
 const elapsed = () => ((Date.now() - t0) / 1000).toFixed(1);
 
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({
+  headless: 'new',
+  args: [
+    '--disable-blink-features=AutomationControlled',
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+  ],
+});
 const context = await browser.newContext({
   userAgent:
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ' +
@@ -25,7 +32,13 @@ const context = await browser.newContext({
   viewport: { width: 1280, height: 800 },
   locale: 'en-US',
 });
+
 const page = await context.newPage();
+
+// Hide automation flags from blitz.cloud gateway
+await page.addInitScript(() => {
+  Object.defineProperty(navigator, 'webdriver', { get: () => false });
+});
 
 let awake = false;
 let lastStatus = null;
@@ -53,6 +66,13 @@ try {
     console.log(
       `[keepalive] t=${elapsed()}s status=${lastStatus} gate=${lastGate} step=${lastStep}`
     );
+
+    if (lastStatus === 503) {
+      try {
+        const bodyText = await page.evaluate(() => document.body.innerText);
+        console.log(`[keepalive] body content: ${bodyText.trim().substring(0, 200)}`);
+      } catch (e) {}
+    }
 
     // App bangun kalau gate bukan "waking" dan status bukan 503.
     if (lastGate !== 'waking' && lastStatus !== 503) {
